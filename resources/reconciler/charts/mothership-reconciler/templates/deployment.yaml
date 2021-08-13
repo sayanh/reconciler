@@ -66,6 +66,8 @@ spec:
       - image: "{{ .Values.global.image.repository }}:{{ .Values.global.image.tag }}"
         imagePullPolicy: {{ .Values.global.image.pullPolicy }}
         args:
+          - --watch-interval=2s
+          - --reconcile-interval=20s
           - reconciler
           - mothership
           - start

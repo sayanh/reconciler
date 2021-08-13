@@ -48,7 +48,8 @@ docker-push:
 .PHONY: deploy
 deploy:
 	kubectl create namespace reconciler --dry-run=client -o yaml | kubectl apply -f -
-	helm template reconciler --namespace reconciler --set "global.components={$(COMPONENTS)}" ./resources/reconciler > reconciler.yaml
+	@echo "components: ${COMPONENTS}"
+	helm template reconciler --namespace reconciler --set "global.components={base,istio}" ./resources/reconciler > reconciler.yaml
 	kubectl apply -f reconciler.yaml
 	rm reconciler.yaml
 
@@ -57,6 +58,12 @@ test:
 	go test -race -coverprofile=cover.out ./...
 	@echo "Total test coverage: $$(go tool cover -func=cover.out | grep total | awk '{print $$3}')"
 	@rm cover.out
+
+e2e-test:
+	kubectl run -n reconciler --image=alpine:3.14.1 --restart=Never test-pod -- sh -c "sleep 36000"
+
+	kubectl run -n reconciler --image=alpine:3.14.1 --restart=Never test-pod -- sh -c "set -eu;apk add curl; curl http://reconciler-mothership-reconciler.reconciler"
+
 
 .PHONY: test-all
 test-all: export RECONCILER_EXPENSIVE_TESTS = 1
