@@ -44,6 +44,7 @@ function wait_until_kyma_installed() {
 # Sends HTTP POST request to mothership-reconciler to trigger reconciliation of Kyma
 function send_reconciliation_request() {
   echo "sending reconciliation request to mothership-reconciler at: ${RECONCILE_API}"
+  set -x
   reconciliationResponse=$(curl --request POST -sL \
        --url "${RECONCILE_API}"\
        --data @"${RECONCILE_PAYLOAD_FILE}")
